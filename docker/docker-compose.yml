@@ -1,0 +1,67 @@
+# docker/containers/docker-compose.yml
+version: "3.7"
+
+services:
+  db:
+    image: postgres:12.4
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data
+    volumes:
+      - ./data/db:/var/lib/postgresql
+    ports:
+      - "5432:5432"
+    networks:
+      - private_network
+  
+  php-fpm:
+    build:
+      context: ./containers/php-fpm
+    depends_on:
+      - db
+    environment:
+      - APP_ENV=${APP_ENV}
+      - APP_SECRET=${APP_SECRET}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@127.0.0.1:5432/${POSTGRES_DB}?serverVersion=12.4
+    volumes:
+      - ../src:/opt/dim.one
+    networks:
+      - private_network
+  
+  nginx:
+    image: nginx
+    volumes:
+      - ../src:/opt/dim.one
+      - ./containers/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./containers/nginx/sites/:/etc/nginx/sites-available
+      - ./containers/nginx/conf.d/:/etc/nginx/conf.d
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - php-fpm
+    ports:
+      - "80:80"
+    networks:
+      - private_network
+
+#  pgadmin:
+#    image: dpage/pgadmin4
+#    restart: always
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: admin@linuxhint.com
+#      PGADMIN_DEFAULT_PASSWORD: secret
+#      PGADMIN_LISTEN_PORT: 80
+#    volumes:
+#      - ./data/pgadmin:/var/lib/pgadmin
+#    links:
+#      - "db:pgsql-server"
+#    networks:
+#      - private_network
+
+networks:
+  private_network:
+
+#volumes:
+#  db-data:
+#  pgadmin-data:
