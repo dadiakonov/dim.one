@@ -1,3 +1,12 @@
+# phpstorm project files
+.idea
+
+# windows thumbnail cache
+Thumbs.db
+
+# Mac DS_Store Files
+.DS_Store
+
 # Cache and logs (Symfony2)
 /app/cache/*
 /app/logs/*
@@ -44,6 +53,9 @@
 
 # Composer PHAR
 /composer.phar
+
+# composer LOCK
+composer.lock
 
 # Backup entities generated with doctrine:generate:entities command
 **/Entity/*~
