@@ -1,47 +1,55 @@
-# docker/containers/docker-compose.yml
+# docker/docker-compose.yml
 version: "3.7"
-
 services:
   db:
     image: postgres:12.4
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - PGDATA=/var/lib/postgresql/data
+    restart: always
+    hostname: db.docker.local
     volumes:
-      - ./data/db:/var/lib/postgresql
+      - ./containers/db/etc/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./data/db/data:/pgdata
     ports:
-      - "5432:5432"
+      - target: 5432
+        published: ${POSTGRES_PORT}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /pgdata
     networks:
       - private_network
-  
-  php-fpm:
+
+  php:
     build:
-      context: ./containers/php-fpm
+      context: ./containers/php
+    hostname: php.docker.local
+    volumes:
+      - ../src:/opt/dim
     depends_on:
       - db
+    ports:
+      - target: 9001
+        published: ${XDEBUG_PORT}
     environment:
       - APP_ENV=${APP_ENV}
       - APP_SECRET=${APP_SECRET}
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@127.0.0.1:5432/${POSTGRES_DB}?serverVersion=12.4
-    volumes:
-      - ../src:/opt/dim.one
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@127.0.0.1:${POSTGRES_PORT}/${POSTGRES_DB}?serverVersion=12.4
     networks:
       - private_network
-  
+
   nginx:
     image: nginx
+    hostname: nginx.docker.local
     volumes:
-      - ../src:/opt/dim.one
-      - ./containers/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./containers/nginx/sites/:/etc/nginx/sites-available
-      - ./containers/nginx/conf.d/:/etc/nginx/conf.d
-      - ./logs/nginx:/var/log/nginx
+      - ./containers/nginx/etc/nginx/conf.d:/etc/nginx/conf.d
+      - ./containers/nginx/etc/nginx/sites-available:/etc/nginx/sites-available
+      - ./containers/nginx/etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../src:/opt/dim
     depends_on:
-      - php-fpm
+      - php
     ports:
-      - "80:80"
+      - target: 80
+        published: ${NGINX_PORT}
     networks:
       - private_network
 
@@ -63,5 +71,5 @@ networks:
   private_network:
 
 #volumes:
-#  db-data:
+#  pgdata:
 #  pgadmin-data:
