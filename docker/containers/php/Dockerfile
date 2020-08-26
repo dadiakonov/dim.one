@@ -14,8 +14,8 @@ RUN apt update && \
         g++ \
         git \
         curl \
+        lsof \
         net-tools \
-        iputils-ping \
         sudo \
         libcurl4-gnutls-dev \
         libonig-dev \
@@ -42,9 +42,25 @@ RUN docker-php-ext-configure bcmath && \
 RUN printf "\n" | pecl install xdebug && \
     docker-php-ext-enable xdebug
 
+## Remove deafult configuration files
+RUN rm /usr/local/etc/php/php.ini-production \
+       /usr/local/etc/php/php.ini-development \
+       /usr/local/etc/php-fpm.conf.default \
+       /usr/local/etc/php-fpm.d/www.conf.default
+
+## Copy development configuration files
+COPY ./usr/local/etc/php/php.ini /usr/local/etc/php/php.ini
+COPY ./usr/local/etc/php/conf.d/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+
 ## Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin && \
     composer clear-cache
+
+## Add support for host.docker.internal
+RUN RES="$(arp host.docker.internal 2>/dev/null; echo $?)"; \
+    if [ ${RES} -ne "0" ]; then \
+      sed -i '/#!/a netstat -rn | grep UG | tr -s " " | cut -d" " -f2 | sed "s/$/ host.docker.internal/" | sudo tee -a /etc/hosts' /usr/local/bin/docker-php-entrypoint; \
+    fi
 
 ## Set working directory
 WORKDIR /opt/dim
