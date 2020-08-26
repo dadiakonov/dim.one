@@ -1,4 +1,4 @@
-# docker/containers/php-fpm/Dockerfile
+# docker/containers/php/Dockerfile
 
 FROM php:7.4-fpm
 
@@ -14,6 +14,9 @@ RUN apt update && \
         g++ \
         git \
         curl \
+        net-tools \
+        iputils-ping \
+        sudo \
         libcurl4-gnutls-dev \
         libonig-dev \
         libicu-dev \
@@ -31,13 +34,17 @@ RUN docker-php-ext-configure bcmath && \
         bcmath \
         intl \
         mbstring \
+        opcache \
         pdo_mysql
+
+# Install PECL extensions
+# see http://stackoverflow.com/a/8154466/291573) for usage of `printf`
+RUN printf "\n" | pecl install xdebug && \
+    docker-php-ext-enable xdebug
 
 ## Install composer
 RUN curl -sS https://getcomposer.org/installer | php -- --filename=composer --install-dir=/usr/local/bin && \
     composer clear-cache
 
 ## Set working directory
-WORKDIR /opt/dim.one
-
-EXPOSE 9000
+WORKDIR /opt/dim
