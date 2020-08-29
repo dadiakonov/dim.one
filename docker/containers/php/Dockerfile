@@ -16,12 +16,24 @@ RUN apt update && \
         curl \
         lsof \
         net-tools \
+        build-essential \
+        openssl \
         sudo \
         libcurl4-gnutls-dev \
+        libssl-dev \
         libonig-dev \
         libicu-dev \
         libzip-dev \
-        unzip
+        unzip \
+        gnupg2
+
+## Install yarn
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+    apt update && \
+    apt install -y --no-install-recommends \
+        nodejs \
+        yarn
 
 ## Clean up
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -37,8 +49,8 @@ RUN docker-php-ext-configure bcmath && \
         opcache \
         pdo_mysql
 
-# Install PECL extensions
-# see http://stackoverflow.com/a/8154466/291573) for usage of `printf`
+## Install PECL extensions
+## see http://stackoverflow.com/a/8154466/291573) for usage of `printf`
 RUN printf "\n" | pecl install xdebug && \
     docker-php-ext-enable xdebug
 
