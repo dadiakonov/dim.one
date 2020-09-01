@@ -18,3 +18,10 @@ or
 # php container
 yarn encore production
 ```
+
+## Maintenance mode
+Switch on/off:
+```shell script
+# nginx container
+sh /opt/dim/bin/maintenance.sh
+```
