@@ -15,7 +15,7 @@ services:
       - php
     ports:
       - target: 80
-        published: ${NGINX_PORT}
+        published: 80
     networks:
       - private_network
   
@@ -27,9 +27,6 @@ services:
       - ../src:/opt/dim
     depends_on:
       - db
-    ports:
-      - target: 9001
-        published: ${XDEBUG_PORT}
     environment:
       - APP_ENV=${APP_ENV}
       - APP_SECRET=${APP_SECRET}
@@ -44,33 +41,11 @@ services:
     volumes:
       - ./containers/db/etc/postgresql/postgresql.conf:/etc/postgresql/postgresql.conf
       - ./data/db/pgdata:/pgdata
-    ports:
-      - target: 5432
-        published: ${POSTGRES_PORT}
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PGDATA: /pgdata
-    networks:
-      - private_network
-  
-  pgadmin:
-    image: dpage/pgadmin4
-    restart: always
-    hostname: pgadmin.docker.local
-    volumes:
-      - ./data/pgadmin:/var/lib/pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-    ports:
-      - target: 80
-        published: ${PGADMIN_PORT}
-    depends_on:
-      - db
-    links:
-      - db:pgsql-server
     networks:
       - private_network
 
