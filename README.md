@@ -1,7 +1,22 @@
 # dim.one
-dim.one personal app
 
-## Environment variables
+App for personal usage
+
+## Requirements
+
+- [docker-ce](https://docs.docker.com/engine/install/)
+- [docker-compose](https://docs.docker.com/compose/install/)
+
+## Installation
+
+### Clone the repository
+```shell script
+mkdir dim && \
+cd dim && \
+git clone git@github.com:dadiakonov/dim.one.git .
+```
+
+### Set up environment variables
 ```shell script
 # in app directory
 cp docker/.env.dev docker/.env
@@ -12,7 +27,7 @@ or
 cp docker/.env.prod docker/.env
 ```
 
-## Docker Compose
+### Run docker containers
 ```shell script
 # in app directory
 docker-compose up --build -d
@@ -23,14 +38,14 @@ or
 docker-compose -f docker-compose.prod.yml up --build -d
 ```
 
-## Install dependencies
+### Install dependencies
 ```shell script
 # php container
 composer install
 yarn install
 ```
 
-## Build assets
+### Build assets
 ```shell script
 # php container
 yarn encore dev
@@ -41,7 +56,9 @@ or
 yarn encore production
 ```
 
-## Maintenance mode
+## Usage
+
+### Maintenance mode
 Switch on/off:
 ```shell script
 # nginx container
