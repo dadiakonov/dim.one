@@ -1,5 +1,27 @@
 # dim.one
-dim.one personal page
+dim.one personal app
+
+## Environment variables
+```shell script
+# in app directory
+cp docker/.env.dev docker/.env
+```
+or
+```shell script
+# in app directory
+cp docker/.env.prod docker/.env
+```
+
+## Docker Compose
+```shell script
+# in app directory
+docker-compose up --build -d
+```
+or
+```shell script
+# in app directory
+docker-compose -f docker-compose.prod.yml up --build -d
+```
 
 ## Install dependencies
 ```shell script
